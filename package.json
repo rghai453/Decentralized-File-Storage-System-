@@ -10,11 +10,15 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@helia/unixfs": "^3.0.7",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helia": "^4.2.5",
     "solc": "^0.8.26"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/express": "^4.17.21",
     "hardhat": "^2.22.8"
   }
 }

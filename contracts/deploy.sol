@@ -20,8 +20,8 @@ contract FileStorage {
 
     }
 
-    function getFile(string memory fileHash) public view returns (string memory, uint256, address, string memory) {
+    function getFile(string memory fileHash) public view returns (string memory) {
         File memory file = files[fileHash]; 
-        return (file.fileName, file.fileSize, file.owner, file.pinAddress);
+        return file.pinAddress;
     }
 }
