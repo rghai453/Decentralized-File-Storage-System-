@@ -17,6 +17,7 @@
     "solc": "^0.8.26"
   },
   "devDependencies": {
+    "@metamask/providers": "^17.1.2",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@types/express": "^4.17.21",
     "hardhat": "^2.22.8"
