@@ -29,7 +29,7 @@ export class blockChainConnection {
     async getMetadata(fileHash:string): Promise<string> {
         try {
             const result = await this.contract.getFile(fileHash)
-            return result[3]
+            return result
         } catch (error) {
             console.error('Error retrieving metadata:', error);
             throw error;

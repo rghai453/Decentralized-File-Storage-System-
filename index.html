@@ -1,0 +1,56 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized File Service</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .container {
+            display: none;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        input, button {
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Decentralized File Service</h1>
+    <button id="connectButton">Connect with MetaMask</button>
+    <div id="authStatus"></div>
+
+    <div id="fileSystem" class="container">
+        <div class="section">
+            <h2>Upload File</h2>
+            <input type="file" id="fileInput">
+            <button id="uploadButton">Upload</button>
+            <div id="uploadResult"></div>
+        </div>
+        <div class="section">
+            <h2>Download File</h2>
+            <input type="text" id="fileHash" placeholder="Enter File Hash">
+            <button id="downloadButton">Download</button>
+            <div id="downloadResult"></div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

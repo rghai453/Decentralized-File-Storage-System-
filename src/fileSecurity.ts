@@ -4,35 +4,76 @@ import {Buffer} from 'buffer';
 
 export class FileEncryption{
 
-    static generateKey(): Promise<CryptoKey>{
-        const algorithm = {
-            name: 'AES-CBC', 
-            length: 256
-        }
-        return crypto.subtle.generateKey(algorithm, 
-        true, ['encrypt', 'decrypt']); 
-    }
-
-    async cryptoKeyToBuffer(key: CryptoKey): Promise<Buffer> {
-        const exported = await crypto.subtle.exportKey(
-          key.type === 'public' ? 'spki' : 'pkcs8', 
-          key
+    static async generateKey(bytes: number): Promise<Buffer>{
+        const key = await window.crypto.subtle.generateKey(
+            {
+                name: "AES-GCM",
+                length: bytes, // 32 bytes = 256 bits
+            },
+            true, // whether the key is extractable (i.e., can be used in exportKey)
+            ["encrypt", "decrypt"] // can be used for these operations
         );
-        return Buffer.from(exported);
-      }
+        
+        const rawKey = await window.crypto.subtle.exportKey("raw", key);
+        const bufferKey = Buffer.from(new Uint8Array(rawKey));
 
-    static encryptFile(file: Buffer, key: Buffer): Buffer{
-        const iv = crypto.randomBytes(16); 
-        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv); 
-        const encrypted = Buffer.concat([cipher.update(file), cipher.final()]); 
-        return Buffer.concat([iv, encrypted]); 
+        return bufferKey;
+        
     }
 
-    static decryptFile(encryptedFile: Buffer, key: Buffer): Buffer{
+
+    static async encryptFile(file: Uint8Array, key: Buffer): Promise<Buffer>{
+        const cryptoKey = await window.crypto.subtle.importKey(
+            'raw',               
+            key,                 
+            { name: 'AES-CBC' }, 
+            false,              
+            ['encrypt']       
+        );
+    
+        // Generate a random IV (initialization vector)
+        const iv = window.crypto.getRandomValues(new Uint8Array(16));
+    
+        // Encrypt the data
+        const encryptedData = await window.crypto.subtle.encrypt(
+            {
+                name: 'AES-CBC',
+                iv: iv
+            },
+            cryptoKey,
+            file
+        );
+        // Combine IV and encrypted data
+        return Buffer.concat([Buffer.from(iv), Buffer.from(new Uint8Array(encryptedData))]);
+    }
+
+    static async decryptFile(encryptedFile: Uint8Array, key: Buffer): Promise<Buffer>{
         const iv = encryptedFile.subarray(0, 16);
+    
+        // Extract the encrypted data
         const encryptedData = encryptedFile.subarray(16);
-        const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-        return Buffer.concat([decipher.update(encryptedData), decipher.final()]);
+        
+        // Convert the key from Buffer to CryptoKey
+        const cryptoKey = await window.crypto.subtle.importKey(
+            'raw',                
+            key,                  
+            { name: 'AES-CBC' },  
+            false,                
+            ['decrypt']           
+        );
+    
+        // Decrypt the data
+        const decryptedData = await window.crypto.subtle.decrypt(
+            {
+                name: 'AES-CBC',
+                iv: iv
+            },
+            cryptoKey,
+            encryptedData
+        );
+    
+        // Return the decrypted data as a Buffer
+        return Buffer.from(new Uint8Array(decryptedData));
     }
 
 

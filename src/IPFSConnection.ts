@@ -6,16 +6,17 @@ import type { UnixFS } from '@helia/unixfs'
 
 
 export class IPFSConnection {
-    private helia!: Helia 
-    private fs!: UnixFS 
+    private helia: any 
+    private fs: any 
 
     constructor(){
         this.init(); 
     }
 
     private async init() {
-        this.helia = await createHelia()
-        this.fs = unixfs(this.helia)
+
+        this.helia = await createHelia();
+        this.fs = unixfs(this.helia);
       }
 
     async addFile(file: Uint8Array): Promise<string> {
@@ -23,10 +24,11 @@ export class IPFSConnection {
             await this.init(); 
         }
         const cid = await this.fs.addFile({content: file})
+        console.log(cid)
         return cid.toString(); 
     }
 
-    async getFile(cid: string): Promise<Uint8Array> {
+    async getFile(cid: string): Promise<Buffer> {
         if (!this.helia || !this.fs) {
             await this.init(); 
         }
@@ -35,6 +37,6 @@ export class IPFSConnection {
         for await (const chunk of this.fs.cat(parsedCID)){
             chunks.push(chunk)
         }
-        return new Uint8Array(Buffer.concat(chunks)); 
+        return Buffer.concat(chunks); 
     }
 }

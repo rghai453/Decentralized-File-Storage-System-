@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  const FileStorageModule = require("../ignition/modules/FileStorage");
+  const FileStorageModule = require("../ignition/modules/FileStorage.cjs");
 
   const result = await hre.ignition.deploy(FileStorageModule);
 

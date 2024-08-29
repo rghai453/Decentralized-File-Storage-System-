@@ -1,6 +1,6 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
-const FileStorageModule = buildModule("FileStorage", (m: { contract: (arg0: string) => any; }) => {
+const FileStorageModule = buildModule("FileStorage", (m) => {
   const fileStorage = m.contract("FileStorage");
 
   // You can add initial setup here if needed

@@ -2,6 +2,7 @@ import { IPFSConnection } from "./IPFSConnection";
 import { FileEncryption } from "./fileSecurity";
 import crypto from "crypto"; 
 import { blockChainConnection } from "./blockchainConnection";
+import fs from 'fs/promises'; 
 
 
 export class fileController {
@@ -16,11 +17,9 @@ export class fileController {
         this.mt = metadataBlockchain
     }
 
-    async uploadFile(file: Buffer, name: string): Promise<void> {
+     async uploadFile(file: Uint8Array, name: string, key: Buffer): Promise<string> {
         //file encryption and key generation
-        const key = (await FileEncryption.generateKey())
-        const exkey = await this.fe.cryptoKeyToBuffer(key)
-        const encryptedFile = await FileEncryption.encryptFile(file, exkey)
+        const encryptedFile = await FileEncryption.encryptFile(file, key)
 
         //metadata generation
         const cid = await this.ipfs.addFile(encryptedFile)
@@ -28,25 +27,29 @@ export class fileController {
         const fileSize = encryptedFile.length 
 
         //store metadata 
-        await this.mt.storeMetadata(fileHash, name, fileSize, cid)
-
+        await this.mt.storeMetadata(await fileHash, name, fileSize, cid)
+        return fileHash
     }
 
-    async downloadFile(fileHash:string): Promise<Buffer>{
+        // edit to get key from user as parameter
+     async downloadFile(fileHash:string, key: Buffer): Promise<Buffer>{
         //get metadata using fileHash 
         const metadata = await this.mt.getMetadata(fileHash)
         //get cid from metadata using file
         const encryptedFile = await this.ipfs.getFile(metadata)
-        const buff = Buffer.from(encryptedFile)
-        //get key from user 
-        const key = Buffer.from('key')
         //return decrypted file
-        const decryptedfile = await FileEncryption.decryptFile(buff, key)
-        const fs = require('fs');
-        return fs.writeFileSync('output-file', decryptedfile);
+        const decryptedfile = await FileEncryption.decryptFile(encryptedFile, key)
+        fs.writeFile('output-file.txt', decryptedfile);
+        return decryptedfile; 
     }
 
-    private generateFileHash(fileBuffer: Buffer): string {
-        return crypto.createHash('sha256').update(fileBuffer).digest('hex');
+    private async generateFileHash(fileBuffer: Buffer): Promise<string> {
+        const hashBuffer = await window.crypto.subtle.digest('SHA-256', fileBuffer);
+
+        // Convert ArrayBuffer to hex string
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+        return hashHex;
       }
 }
